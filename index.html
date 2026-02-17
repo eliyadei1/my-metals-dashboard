@@ -3,18 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Elia's Multi-Source Dashboard</title>
+    <title>Global Metals & Crypto - Mobile Ready</title>
     <style>
         :root { --gold: #d4af37; --silver: #c0c0c0; --btc: #f7931a; --bg: #0b0e11; --card: #161a1e; --text: #e0e0e0; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; overflow: hidden; }
-        .dashboard-wrapper { display: grid; grid-template-columns: 280px 1fr 350px; gap: 15px; height: 95vh; }
-        .price-sidebar { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
-        .mini-card { background: var(--card); border-radius: 8px; padding: 12px; border: 1px solid #2a2e33; }
-        .symbol { font-size: 0.7rem; color: #888; font-weight: bold; }
-        .val { font-size: 1.2rem; font-weight: 700; margin-top: 5px; color: #fff; }
-        .ils { font-size: 0.85rem; color: #2ecc71; margin-top: 2px; }
-        .main-chart, .news-sidebar { background: var(--card); border-radius: 12px; border: 1px solid #2a2e33; display: flex; flex-direction: column; overflow: hidden; }
-        .section-header { padding: 12px; background: #1c2127; font-size: 0.8rem; font-weight: bold; border-bottom: 1px solid #2a2e33; color: var(--gold); }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 10px; }
+        
+        /* Responsive Layout */
+        .dashboard-wrapper { display: grid; grid-template-columns: 1fr; gap: 15px; }
+        @media (min-width: 1024px) { .dashboard-wrapper { grid-template-columns: 300px 1fr 350px; height: 98vh; } }
+        
+        .column { display: flex; flex-direction: column; gap: 10px; overflow-y: auto; }
+        .card { background: var(--card); border-radius: 8px; padding: 12px; border: 1px solid #2a2e33; }
+        .section-header { padding: 10px; background: #1c2127; font-size: 0.8rem; font-weight: bold; border-bottom: 1px solid #333; color: var(--gold); border-radius: 8px 8px 0 0; }
+        
+        .val { font-size: 1.2rem; font-weight: 700; color: #fff; }
+        .ils { font-size: 0.85rem; color: #2ecc71; }
+        
+        /* Calculator Style */
+        .calc-input { width: 100%; padding: 8px; margin: 5px 0; background: #0b0e11; border: 1px solid #444; color: white; border-radius: 4px; box-sizing: border-box; }
+        .calc-result { margin-top: 10px; padding: 10px; background: #1c2127; border-radius: 4px; border-left: 3px solid var(--gold); }
+
         .loading { animation: pulse 1.5s infinite; color: #444; }
         @keyframes pulse { 50% { opacity: 0.4; } }
     </style>
@@ -22,23 +30,32 @@
 <body>
 
 <div class="dashboard-wrapper">
-    <div class="price-sidebar">
-        <div class="mini-card" style="border-left: 4px solid var(--gold);"><div class="symbol">GOLD (XAU)</div><div id="XAU" class="val loading">...</div><div id="XAU-ILS" class="ils"></div></div>
-        <div class="mini-card" style="border-left: 4px solid var(--silver);"><div class="symbol">SILVER (XAG)</div><div id="XAG" class="val loading">...</div><div id="XAG-ILS" class="ils"></div></div>
-        <div class="mini-card" style="border-left: 4px solid #b87333;"><div class="symbol">COPPER (XCU)</div><div id="XCU" class="val loading">...</div><div id="XCU-ILS" class="ils"></div></div>
-        <div class="mini-card" style="border-left: 4px solid var(--platinum);"><div class="symbol">PLATINUM (XPT)</div><div id="XPT" class="val loading">...</div><div id="XPT-ILS" class="ils"></div></div>
-        <div class="mini-card" style="border-left: 4px solid var(--btc);"><div class="symbol">BITCOIN (BTC)</div><div id="BTC" class="val loading">...</div><div id="BTC-ILS" class="ils"></div></div>
-        <div class="mini-card" style="border-left: 4px solid #3498db;"><div class="symbol">XRP</div><div id="XRP" class="val loading">...</div><div id="XRP-ILS" class="ils"></div></div>
+    <div class="column">
+        <div class="section-header">LIVE PRICES & CALC (ILS)</div>
+        <div class="card" style="border-left: 4px solid var(--gold);"><div style="font-size:0.7rem; color:#888;">GOLD (XAU)</div><div id="XAU" class="val loading">...</div><div id="XAU-ILS" class="ils"></div></div>
+        <div class="card" style="border-left: 4px solid var(--silver);"><div style="font-size:0.7rem; color:#888;">SILVER (XAG)</div><div id="XAG" class="val loading">...</div><div id="XAG-ILS" class="ils"></div></div>
+        <div class="card" style="border-left: 4px solid var(--btc);"><div style="font-size:0.7rem; color:#888;">BITCOIN</div><div id="BTC" class="val loading">...</div><div id="BTC-ILS" class="ils"></div></div>
+        
+        <div class="card">
+            <strong style="font-size:0.8rem; color:var(--gold);">Buy Calculator (Israel)</strong>
+            <p style="font-size:0.7rem; color:#888;">Calculates price in ILS including 5% typical premium.</p>
+            <input type="number" id="grams" class="calc-input" placeholder="Grams of Gold..." oninput="calculatePrice()">
+            <div id="calc-res" class="calc-result" style="font-size:0.85rem;">Result: ₪0.00</div>
+        </div>
     </div>
 
-    <div class="main-chart">
-        <div class="section-header">REAL-TIME MARKET CHART</div>
-        <div id="tradingview_chart" style="flex:1;"></div>
+    <div class="column">
+        <div class="card" style="flex:1; padding:0; overflow:hidden; min-height: 400px;">
+            <div class="section-header">MARKET CHART</div>
+            <div id="tradingview_chart" style="height:calc(100% - 40px);"></div>
+        </div>
     </div>
 
-    <div class="news-sidebar">
-        <div class="section-header">GLOBAL FINANCIAL NEWS</div>
-        <div id="news-container" style="flex:1;"></div>
+    <div class="column">
+        <div class="card" style="flex:1; padding:0; overflow:hidden; min-height: 400px;">
+            <div class="section-header">GLOBAL NEWS FEED</div>
+            <div id="news-container" style="height:calc(100% - 40px);"></div>
+        </div>
     </div>
 </div>
 
@@ -46,75 +63,59 @@
 <script>
     const GOLD_API_KEY = 'goldapi-2783r519mlqxu55j-io';
     let usdToIls = 3.65;
+    let currentGoldSpot = 0;
 
-    // 1. Get Exchange Rate
     async function fetchExchangeRate() {
         try {
             const res = await fetch(`https://www.goldapi.io/api/USD/ILS`, { headers: { "x-access-token": GOLD_API_KEY } });
             const data = await res.json();
             if(data.price) usdToIls = data.price;
-        } catch(e) { console.error("Rate error", e); }
+        } catch(e) { console.error(e); }
     }
 
-    // 2. Fetch Metals from GoldAPI
     async function updateMetal(symbol) {
         try {
-            const res = await fetch(`https://www.goldapi.io/api/${symbol}/USD`, {
-                headers: { "x-access-token": GOLD_API_KEY, "Content-Type": "application/json" }
-            });
+            const res = await fetch(`https://www.goldapi.io/api/${symbol}/USD`, { headers: { "x-access-token": GOLD_API_KEY } });
             const data = await res.json();
             if(data.price) {
-                document.getElementById(symbol).innerText = `$${data.price.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
-                document.getElementById(symbol + '-ILS').innerText = `₪${(data.price * usdToIls).toLocaleString(undefined, {minimumFractionDigits: 2})}`;
+                document.getElementById(symbol).innerText = `$${data.price.toLocaleString()}`;
+                document.getElementById(symbol + '-ILS').innerText = `₪${(data.price * usdToIls).toLocaleString()}`;
                 document.getElementById(symbol).classList.remove('loading');
-            } else {
-                document.getElementById(symbol).innerText = "N/A (Limit)";
+                if(symbol === 'XAU') { currentGoldSpot = data.price; calculatePrice(); }
             }
-        } catch (e) { document.getElementById(symbol).innerText = "Error"; }
+        } catch (e) { console.error(e); }
     }
 
-    // 3. Fetch Crypto from CoinGecko (Free & No Key)
     async function updateCrypto() {
         try {
             const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ripple&vs_currencies=usd');
             const data = await res.json();
-            
-            // BTC
-            const btcPrice = data.bitcoin.usd;
-            document.getElementById('BTC').innerText = `$${btcPrice.toLocaleString()}`;
-            document.getElementById('BTC-ILS').innerText = `₪${(btcPrice * usdToIls).toLocaleString()}`;
+            document.getElementById('BTC').innerText = `$${data.bitcoin.usd.toLocaleString()}`;
+            document.getElementById('BTC-ILS').innerText = `₪${(data.bitcoin.usd * usdToIls).toLocaleString()}`;
             document.getElementById('BTC').classList.remove('loading');
-
-            // XRP
-            const xrpPrice = data.ripple.usd;
-            document.getElementById('XRP').innerText = `$${xrpPrice.toFixed(4)}`;
-            document.getElementById('XRP-ILS').innerText = `₪${(xrpPrice * usdToIls).toFixed(2)}`;
-            document.getElementById('XRP').classList.remove('loading');
-        } catch (e) { console.error("Crypto error", e); }
+        } catch (e) { console.error(e); }
     }
 
-    function initTradingView() {
-        new TradingView.widget({ "autosize": true, "symbol": "OANDA:XAUUSD", "interval": "60", "theme": "dark", "style": "1", "container_id": "tradingview_chart" });
+    function calculatePrice() {
+        const grams = document.getElementById('grams').value || 0;
+        const pricePerGram = (currentGoldSpot / 31.1035) * usdToIls; // To ILS per gram
+        const total = grams * pricePerGram * 1.05; // Spot + 5% Premium
+        document.getElementById('calc-res').innerText = `Result: ₪${total.toLocaleString(undefined, {maximumFractionDigits: 0})}`;
     }
 
+    function initTV() { new TradingView.widget({ "autosize": true, "symbol": "OANDA:XAUUSD", "interval": "60", "theme": "dark", "container_id": "tradingview_chart" }); }
     function initNews() {
         const script = document.createElement('script');
         script.src = "https://s3.tradingview.com/external-embedding/embed-widget-timeline.js";
         script.async = true;
-        script.innerHTML = JSON.stringify({ "feedMode": "all_symbols", "colorTheme": "dark", "isTransparent": true, "displayMode": "regular", "width": "100%", "height": "100%", "locale": "en" });
+        script.innerHTML = JSON.stringify({ "feedMode": "all_symbols", "colorTheme": "dark", "isTransparent": true, "displayMode": "regular", "width": "100%", "height": "100%" });
         document.getElementById('news-container').appendChild(script);
     }
 
-    async function refreshAll() {
-        await fetchExchangeRate();
-        ['XAU','XAG','XCU','XPT'].forEach(updateMetal);
-        updateCrypto();
-    }
+    async function refresh() { await fetchExchangeRate(); updateMetal('XAU'); updateMetal('XAG'); updateCrypto(); }
 
-    initTradingView();
-    initNews();
-    refreshAll();
-    setInterval(refreshAll, 120000); 
+    initTV(); initNews(); refresh();
+    setInterval(refresh, 120000);
 </script>
 </body>
 </html>
