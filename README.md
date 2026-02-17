@@ -1,5 +1,4 @@
 # my-metals-dashboard
-r
 
 A lightweight, responsive web dashboard designed to provide a unified view of the global commodities and crypto markets.
 
