@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Metals & Crypto Pro Dashboard - ILS Edition</title>
+    <title>Elia's Multi-Source Dashboard</title>
     <style>
         :root { --gold: #d4af37; --silver: #c0c0c0; --btc: #f7931a; --bg: #0b0e11; --card: #161a1e; --text: #e0e0e0; }
         body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; overflow: hidden; }
@@ -12,7 +12,7 @@
         .mini-card { background: var(--card); border-radius: 8px; padding: 12px; border: 1px solid #2a2e33; }
         .symbol { font-size: 0.7rem; color: #888; font-weight: bold; }
         .val { font-size: 1.2rem; font-weight: 700; margin-top: 5px; color: #fff; }
-        .ils { font-size: 0.9rem; color: #2ecc71; margin-top: 2px; }
+        .ils { font-size: 0.85rem; color: #2ecc71; margin-top: 2px; }
         .main-chart, .news-sidebar { background: var(--card); border-radius: 12px; border: 1px solid #2a2e33; display: flex; flex-direction: column; overflow: hidden; }
         .section-header { padding: 12px; background: #1c2127; font-size: 0.8rem; font-weight: bold; border-bottom: 1px solid #2a2e33; color: var(--gold); }
         .loading { animation: pulse 1.5s infinite; color: #444; }
@@ -44,33 +44,57 @@
 
 <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
 <script>
-    const API_KEY = 'goldapi-2783r519mlqxu55j-io';
-    let usdToIls = 3.65; // Default fallback
+    const GOLD_API_KEY = 'goldapi-2783r519mlqxu55j-io';
+    let usdToIls = 3.65;
 
+    // 1. Get Exchange Rate
     async function fetchExchangeRate() {
         try {
-            const res = await fetch(`https://www.goldapi.io/api/USD/ILS`, { headers: { "x-access-token": API_KEY } });
+            const res = await fetch(`https://www.goldapi.io/api/USD/ILS`, { headers: { "x-access-token": GOLD_API_KEY } });
             const data = await res.json();
             if(data.price) usdToIls = data.price;
-        } catch(e) { console.error("Exchange rate error", e); }
+        } catch(e) { console.error("Rate error", e); }
     }
 
-    async function updatePrice(symbol) {
+    // 2. Fetch Metals from GoldAPI
+    async function updateMetal(symbol) {
         try {
             const res = await fetch(`https://www.goldapi.io/api/${symbol}/USD`, {
-                headers: { "x-access-token": API_KEY, "Content-Type": "application/json" }
+                headers: { "x-access-token": GOLD_API_KEY, "Content-Type": "application/json" }
             });
             const data = await res.json();
             if(data.price) {
                 document.getElementById(symbol).innerText = `$${data.price.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
                 document.getElementById(symbol + '-ILS').innerText = `₪${(data.price * usdToIls).toLocaleString(undefined, {minimumFractionDigits: 2})}`;
                 document.getElementById(symbol).classList.remove('loading');
+            } else {
+                document.getElementById(symbol).innerText = "N/A (Limit)";
             }
-        } catch (e) { console.error(symbol, e); }
+        } catch (e) { document.getElementById(symbol).innerText = "Error"; }
+    }
+
+    // 3. Fetch Crypto from CoinGecko (Free & No Key)
+    async function updateCrypto() {
+        try {
+            const res = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ripple&vs_currencies=usd');
+            const data = await res.json();
+            
+            // BTC
+            const btcPrice = data.bitcoin.usd;
+            document.getElementById('BTC').innerText = `$${btcPrice.toLocaleString()}`;
+            document.getElementById('BTC-ILS').innerText = `₪${(btcPrice * usdToIls).toLocaleString()}`;
+            document.getElementById('BTC').classList.remove('loading');
+
+            // XRP
+            const xrpPrice = data.ripple.usd;
+            document.getElementById('XRP').innerText = `$${xrpPrice.toFixed(4)}`;
+            document.getElementById('XRP-ILS').innerText = `₪${(xrpPrice * usdToIls).toFixed(2)}`;
+            document.getElementById('XRP').classList.remove('loading');
+        } catch (e) { console.error("Crypto error", e); }
     }
 
     function initTradingView() {
-        new TradingView.widget({ "autosize": true, "symbol": "OANDA:XAUUSD", "interval": "60", "theme": "dark", "style": "1", "locale": "en", "container_id": "tradingview_chart" });
+        new TradingView.widget({ "autosize": true, "symbol": "OANDA:XAUUSD", "interval": "60", "theme": "dark", "style": "1", "container_id": "tradingview_chart" });
     }
 
     function initNews() {
@@ -83,7 +107,8 @@
 
     async function refreshAll() {
         await fetchExchangeRate();
-        ['XAU','XAG','XCU','XPT','BTC','XRP'].forEach(updatePrice);
+        ['XAU','XAG','XCU','XPT'].forEach(updateMetal);
+        updateCrypto();
     }
 
     initTradingView();
