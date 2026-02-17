@@ -6,28 +6,23 @@
     <title>Metals & Crypto Pro Dashboard</title>
     <style>
         :root { --gold: #d4af37; --silver: #c0c0c0; --btc: #f7931a; --bg: #0b0e11; --card: #161a1e; --text: #e0e0e0; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; overflow-x: hidden; }
+        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 15px; overflow: hidden; }
         
-        /* Layout for Standard Desktop */
-        .dashboard-wrapper { display: grid; grid-template-columns: 280px 1fr 320px; gap: 15px; height: 95vh; }
+        .dashboard-wrapper { display: grid; grid-template-columns: 260px 1fr 350px; gap: 15px; height: 95vh; }
         
         /* Sidebar Prices */
-        .price-sidebar { display: flex; flex-direction: column; gap: 10px; }
-        .mini-card { background: var(--card); border-radius: 8px; padding: 12px; border: 1px solid #2a2e33; transition: 0.3s; }
-        .mini-card:hover { border-color: var(--gold); }
-        .symbol { font-size: 0.75rem; color: #888; font-weight: bold; }
-        .val { font-size: 1.4rem; font-weight: 700; margin-top: 5px; }
+        .price-sidebar { display: flex; flex-direction: column; gap: 8px; overflow-y: auto; }
+        .mini-card { background: var(--card); border-radius: 8px; padding: 12px; border: 1px solid #2a2e33; }
+        .symbol { font-size: 0.7rem; color: #888; font-weight: bold; }
+        .val { font-size: 1.3rem; font-weight: 700; margin-top: 5px; color: #fff; }
         
-        /* Center Area: Chart */
-        .main-chart { background: var(--card); border-radius: 12px; border: 1px solid #2a2e33; overflow: hidden; display: flex; flex-direction: column; }
-        .chart-header { padding: 10px 20px; border-bottom: 1px solid #2a2e33; font-weight: bold; font-size: 0.9rem; }
+        /* Main Content */
+        .main-chart { background: var(--card); border-radius: 12px; border: 1px solid #2a2e33; display: flex; flex-direction: column; overflow: hidden; }
+        .news-sidebar { background: var(--card); border-radius: 12px; border: 1px solid #2a2e33; overflow: hidden; display: flex; flex-direction: column; }
         
-        /* News Sidebar */
-        .news-sidebar { background: var(--card); border-radius: 12px; border: 1px solid #2a2e33; display: flex; flex-direction: column; }
-        .news-header { padding: 15px; border-bottom: 1px solid #2a2e33; font-weight: bold; color: var(--gold); }
-        .news-feed { flex: 1; overflow-y: auto; padding: 10px; font-size: 0.85rem; }
+        .section-header { padding: 12px; background: #1c2127; font-size: 0.8rem; font-weight: bold; border-bottom: 1px solid #2a2e33; color: var(--gold); }
 
-        .loading { animation: pulse 1.5s infinite; color: #555; }
+        .loading { animation: pulse 1.5s infinite; color: #444; }
         @keyframes pulse { 50% { opacity: 0.4; } }
     </style>
 </head>
@@ -37,43 +32,50 @@
     <div class="price-sidebar">
         <div class="mini-card" style="border-left: 4px solid var(--gold);"><div class="symbol">GOLD (XAU)</div><div id="XAU" class="val loading">...</div></div>
         <div class="mini-card" style="border-left: 4px solid var(--silver);"><div class="symbol">SILVER (XAG)</div><div id="XAG" class="val loading">...</div></div>
-        <div class="mini-card" style="border-left: 4px solid #b87333;"><div class="symbol">COPPER</div><div id="XCU" class="val loading">...</div></div>
-        <div class="mini-card" style="border-left: 4px solid var(--platinum);"><div class="symbol">PLATINUM</div><div id="XPT" class="val loading">...</div></div>
+        <div class="mini-card" style="border-left: 4px solid #b87333;"><div class="symbol">COPPER (XCU)</div><div id="XCU" class="val loading">...</div></div>
+        <div class="mini-card" style="border-left: 4px solid var(--platinum);"><div class="symbol">PLATINUM (XPT)</div><div id="XPT" class="val loading">...</div></div>
         <div class="mini-card" style="border-left: 4px solid var(--btc);"><div class="symbol">BITCOIN (BTC)</div><div id="BTC" class="val loading">...</div></div>
-        <div class="mini-card" style="border-left: 4px solid #23292f;"><div class="symbol">XRP</div><div id="XRP" class="val loading">...</div></div>
+        <div class="mini-card" style="border-left: 4px solid #3498db;"><div class="symbol">XRP</div><div id="XRP" class="val loading">...</div></div>
     </div>
 
     <div class="main-chart">
-        <div class="chart-header">MARKET ANALYSIS (XAU/XAG/BTC)</div>
-        <div style="flex:1;">
-            <div class="tradingview-widget-container" style="height:100%;width:100%;">
-                <div id="tradingview_chart" style="height:calc(100% - 32px);width:100%;"></div>
-                <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
-                <script type="text/javascript">
-                new TradingView.widget({
-                    "autosize": true,
-                    "symbol": "OANDA:XAUUSD",
-                    "interval": "D",
-                    "timezone": "Etc/UTC",
-                    "theme": "dark",
-                    "style": "1",
-                    "locale": "en",
-                    "toolbar_bg": "#f1f3f6",
-                    "enable_publishing": false,
-                    "hide_side_toolbar": false,
-                    "allow_symbol_change": true,
-                    "container_id": "tradingview_chart"
-                });
-                </script>
-            </div>
-            </div>
+        <div class="section-header">REAL-TIME MARKET CHART</div>
+        <div class="tradingview-widget-container" style="flex:1;">
+            <div id="tradingview_chart" style="height:100%;"></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/tv.js"></script>
+            <script type="text/javascript">
+            new TradingView.widget({
+                "autosize": true,
+                "symbol": "OANDA:XAUUSD",
+                "interval": "60",
+                "timezone": "Etc/UTC",
+                "theme": "dark",
+                "style": "1",
+                "locale": "en",
+                "enable_publishing": false,
+                "hide_top_toolbar": false,
+                "save_image": false,
+                "container_id": "tradingview_chart"
+            });
+            </script>
+        </div>
     </div>
 
     <div class="news-sidebar">
-        <div class="news-header">GLOBAL NEWS FEED</div>
-        <div class="news-feed">
-            <a class="cryptopanic-news-widget" data-font-family="sans-serif" data-theme="dark" data-news-feed="recent" data-currencies="BTC,XRP" href="https://cryptopanic.com">Latest Updates</a>
-            <script src="https://www.cryptopanic.com/static/widgets/news.js"></script>
+        <div class="section-header">GLOBAL FINANCIAL NEWS</div>
+        <div class="tradingview-widget-container">
+            <div class="tradingview-widget-container__widget"></div>
+            <script type="text/javascript" src="https://s3.tradingview.com/external-embedding/embed-widget-timeline.js" async>
+            {
+            "feedMode": "all_symbols",
+            "colorTheme": "dark",
+            "isTransparent": true,
+            "displayMode": "regular",
+            "width": "100%",
+            "height": "100%",
+            "locale": "en"
+            }
+            </script>
         </div>
     </div>
 </div>
@@ -81,25 +83,31 @@
 <script>
     const API_KEY = 'goldapi-2783r519mlqxu55j-io'; 
 
-    async function updatePrice(symbol) {
+    async function updatePrice(symbol, id) {
         try {
             const res = await fetch(`https://www.goldapi.io/api/${symbol}/USD`, {
                 headers: { "x-access-token": API_KEY, "Content-Type": "application/json" }
             });
             const data = await res.json();
-            const element = document.getElementById(symbol);
-            if(element) {
-                element.innerText = `$${data.price.toLocaleString()}`;
+            const element = document.getElementById(id);
+            if(element && data.price) {
+                element.innerText = `$${data.price.toLocaleString(undefined, {minimumFractionDigits: 2})}`;
                 element.classList.remove('loading');
             }
-        } catch (e) { console.error(e); }
+        } catch (e) { console.error("Error for " + symbol, e); }
     }
 
-    function start() {
-        ['XAU','XAG','XPT','XCU','BTC','XRP'].forEach(updatePrice);
+    function refreshAll() {
+        updatePrice('XAU', 'XAU');
+        updatePrice('XAG', 'XAG');
+        updatePrice('XCU', 'XCU');
+        updatePrice('XPT', 'XPT');
+        updatePrice('BTC', 'BTC');
+        updatePrice('XRP', 'XRP');
     }
-    start();
-    setInterval(start, 60000); // Auto-refresh every minute
+
+    refreshAll();
+    setInterval(refreshAll, 60000); 
 </script>
 
 </body>
