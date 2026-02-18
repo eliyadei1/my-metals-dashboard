@@ -13,3 +13,5 @@ Market Intelligence: Live news feed focusing on inventory levels at COMEX and th
 Interactive Charts: Historical trend analysis for precious metals.
 
 "Designed this dashboard to bridge the gap between paper markets and physical inventory. As an IT professional interested in the 'Digital Gold' narrative, I built this tool to monitor precious metals premiums and crypto assets in one secure, high-performance interface..
+
+https://eliyadei1.github.io/my-metals-dashboard/
